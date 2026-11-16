@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login – Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+<div id="toast-container"></div>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-back"><a href="/">← Back to Home</a></div>
+        <div class="auth-logo">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="url(#lg)"/>
+                <path d="M16 8C11.58 8 8 11.58 8 16C8 20.42 11.58 24 16 24C20.42 24 24 20.42 24 16C24 11.58 20.42 8 16 8ZM16 10C19.31 10 22 12.69 22 16C22 19.31 19.31 22 16 22C12.69 22 10 19.31 10 16C10 12.69 12.69 10 16 10Z" fill="white"/>
+                <circle cx="16" cy="14" r="2" fill="white"/>
+                <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+            </svg>
+            <span>Smart Attendance</span>
+        </div>
+        <div class="auth-heading">
+            <h1>Welcome back</h1>
+            <p>Sign in to your student account</p>
+        </div>
+        {% if error %}
+        <div class="alert error" style="margin-bottom:1.25rem">
+            <span class="alert-icon">❌</span>
+            <div class="alert-body"><h4>Login Failed</h4><p>{{ error }}</p></div>
+        </div>
+        {% endif %}
+        <form method="POST" id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="button primary" style="width:100%;margin-top:0.5rem" id="login-btn">Sign In</button>
+        </form>
+        <div class="auth-footer">
+            Don't have an account? <a href="/signup">Create one</a> · <a href="/forgot-password">Forgot password?</a>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script>
+document.getElementById('login-form').addEventListener('submit', function() {
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+});
+const params = new URLSearchParams(window.location.search);
+if (params.get('registered') === '1') {
+    showToast('success', 'Registration Successful', 'Welcome! Please sign in with your credentials.');
+}
+if (params.get('password_reset') === '1') {
+    showToast('success', 'Password Reset', 'Your password has been updated. Please sign in with the new password.');
+}
+if (params.get('retrain_warning') === '1') {
+    showToast('error', 'Face Model Not Ready', 'Registration succeeded, but face-recognition training failed. Please contact your admin before marking attendance.');
+}
+
+</script>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

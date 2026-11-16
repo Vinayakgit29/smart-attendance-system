@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                    <circle cx="16" cy="14" r="2" fill="white"/>
+                    <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Smart Attendance</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/login" class="nav-link">Student Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="card" style="max-width: 450px; margin: 0 auto;">
+            <div class="section-header">
+                <div>
+                    <h1 class="section-title">Admin Login</h1>
+                    <p class="section-subtitle">Access the administration dashboard</p>
+                </div>
+            </div>
+            <form method="POST">
+                {% if error %}
+                    <div class="form-alert danger" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; background: #fee2e2; color: #b91c1c;">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" type="text" name="username" placeholder="admin@example.com" pattern=".*@.*" title="Username must contain @" required>
+                    <small style="color: var(--text-secondary);">Username must include '@' in the structure (for example admin@school).</small>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" name="password" placeholder="Enter your password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+" title="Password must contain uppercase, lowercase, and special character" required>
+                    <small style="color: var(--text-secondary);">Password must include at least one uppercase letter, one lowercase letter, and one special character.</small>
+                </div>
+                <button type="submit" class="button primary" style="width: 100%;">Login</button>
+            </form>
+            <p class="text-center mt-3">
+                <a href="/" style="color: var(--text-secondary);">← Back to Home</a>
+            </p>
+        </div>
+    </main>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

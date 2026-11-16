@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Edit Slot' if slot else 'Create Slot' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <h2>Admin Console</h2>
+        <div class="nav-links">
+            <a class="button secondary" href="/admin/slots">Back to Slots</a>
+            <a class="button secondary" href="/admin-dashboard">Dashboard</a>
+            <a class="button secondary" href="/admin-logout">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <section class="card form-card">
+            <div class="section-header">
+                <div>
+                    <h1 class="page-title">{{ 'Edit Slot' if slot else 'Add Slot' }}</h1>
+                    <p class="page-subtitle">Configure a new attendance time window for automated check-in.</p>
+                </div>
+            </div>
+            <form method="POST" class="admin-form">
+                <div class="form-group">
+                    <label for="slot_name">Slot Name</label>
+                    <input id="slot_name" type="text" name="slot_name" value="{{ slot['slot_name'] if slot else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="start_time">Start Time</label>
+                    <input id="start_time" type="time" name="start_time" value="{{ slot['start_time'] if slot else '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_time">End Time</label>
+                    <input id="end_time" type="time" name="end_time" value="{{ slot['end_time'] if slot else '' }}" required>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" name="active" {% if slot and slot['active'] == 1 %}checked{% endif %}> Active
+                    </label>
+                </div>
+                <button type="submit" class="button">{{ 'Save Slot' if slot else 'Create Slot' }}</button>
+            </form>
+        </section>
+    </div>
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</body>
+</html>

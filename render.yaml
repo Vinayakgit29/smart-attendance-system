@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: attendance-app
+    runtime: python
+    plan: free
+    region: singapore          # pick whichever region is closest to your users
+    branch: main
+    # rootDir: attendance_app   # uncomment ONLY if this folder is nested inside a bigger repo
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true

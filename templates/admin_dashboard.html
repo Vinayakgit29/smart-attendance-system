@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <h2>Admin Console</h2>
+        <div class="nav-links">
+            <a class="button secondary" href="/students">Students</a>
+            <a class="button secondary" href="/attendance-records">Attendance</a>
+            <a class="button secondary" href="/admin-logout">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <section class="card">
+            <div class="section-header">
+                <div>
+                    <h1 class="page-title">Welcome back, Admin</h1>
+                    <p class="page-subtitle">Manage students, review attendance data, and keep records organized with one polished dashboard.</p>
+                </div>
+                <a class="button" href="/students">View Students</a>
+            </div>
+        </section>
+        <section class="dashboard-grid">
+            <div class="dashboard-card">
+                <h2>Students</h2>
+                <div class="stats-number">👨‍🎓</div>
+                <p>See all registered student profiles and attendance details in one place.</p>
+                <a class="button secondary" href="/students">View Students</a>
+            </div>
+            <div class="dashboard-card">
+                <h2>Attendance</h2>
+                <div class="stats-number">📋</div>
+                <p>Monitor class attendance, export records, and review session history with confidence.</p>
+                <a class="button secondary" href="/attendance-records">View Records</a>
+            </div>
+        </section>
+    </div>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mark Attendance – Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', var(--font-sans, system-ui); background: #f8fafc; }
+    </style>
+    <style>
+        /* Simple dark mode overrides */
+        .dark-mode body { background: #0b1220 !important; color: #e6eef8; }
+        .dark-mode .glass { background: rgba(255,255,255,0.03); color: #e6eef8; border-color: rgba(255,255,255,0.04); }
+        .dark-mode .att-nav { background: #071029; }
+        .dark-mode .muted { color: #93c5fd; }
+        .dark-mode .btn { color: #e6eef8; }
+        .dark-mode .status-pill.success { background: rgba(34,197,94,0.12); color: #bbf7d0; }
+        .dark-mode .status-pill.danger { background: rgba(239,68,68,0.08); color: #ffc7c7; }
+    </style>
+</head>
+<body>
+<div id="toast-container"></div>
+<div class="loading-overlay" id="page-loader"><div class="spinner"></div><div class="loading-text">Preparing verification…</div></div>
+
+<nav class="att-nav">
+    <div class="att-nav-inner">
+        <div class="att-brand">
+            <div class="logo">
+                <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8Z" fill="white"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="att-title">Smart Attendance</div>
+        </div>
+        <div class="att-actions">
+            <a href="/student-dashboard" class="btn ghost">Dashboard</a>
+            <button id="theme-toggle" class="btn ghost" title="Toggle theme">🌙</button>
+            <a href="/student-logout" class="btn">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<main class="att-main">
+    <div id="attendance-app" class="att-grid"
+         data-university-lat="{{ active_location['latitude'] if active_location else 25.148432703305623 }}"
+         data-university-lon="{{ active_location['longitude'] if active_location else 80.85475153217308 }}"
+         data-allowed-radius="{{ active_location['allowed_radius'] if active_location else 30 }}"
+         data-configured-slot='{{ ( {"id": configured_slot["id"], "slot_name": configured_slot["slot_name"], "start_time": configured_slot["start_time"], "end_time": configured_slot["end_time"]} if configured_slot else {} ) | tojson }}'
+         data-logged-roll="{{ session['roll_number'] if session.get('roll_number') else '' }}">
+
+        <section class="hero-card glass">
+            <div class="hero-content">
+                <div class="hero-copy">
+                    <h1>📍 Smart Attendance Verification</h1>
+                    <p class="muted">Your identity and location will be verified before attendance is marked.</p>
+                    <div class="hero-cta">
+                        <button class="btn primary large" id="start-btn" onclick="startVerification()">
+                            <span id="start-btn-text">Start Verification</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-illustration">
+                    <img src="{{ url_for('static', filename='images/attendance-illustration.svg') }}" alt="Attendance illustration">
+                </div>
+            </div>
+        </section>
+
+        <section class="flow-card glass">
+            <h3>Verification Progress</h3>
+            <div class="timeline" id="flow-steps">
+                <div class="timeline-step" id="step-camera"><div class="step-icon">⏳</div><div class="step-text">Camera</div></div>
+                <div class="timeline-sep"></div>
+                <div class="timeline-step" id="step-identity"><div class="step-icon">⏳</div><div class="step-text">Identity</div></div>
+                <div class="timeline-sep"></div>
+                <div class="timeline-step" id="step-gps"><div class="step-icon">⏳</div><div class="step-text">GPS</div></div>
+                <div class="timeline-sep"></div>
+                <div class="timeline-step" id="step-time"><div class="step-icon">⏳</div><div class="step-text">Time</div></div>
+                <div class="timeline-sep"></div>
+                <div class="timeline-step" id="step-duplicate"><div class="step-icon">⏳</div><div class="step-text">Account</div></div>
+                <div class="timeline-sep"></div>
+                <div class="timeline-step" id="step-complete"><div class="step-icon">⏳</div><div class="step-text">Attendance</div></div>
+            </div>
+        </section>
+
+        <section class="cards-col">
+            <div class="eligibility-card glass">
+                <h4>Eligibility Checks</h4>
+                <div class="eligibility-list">
+                    <div class="elig-item" id="check-camera"><div class="elig-icon" id="icon-camera">⏳</div><div class="elig-text">Camera Working<div class="elig-detail" id="detail-camera">Waiting…</div></div></div>
+                    <!-- Face eligibility removed (handled in Face Verification card) -->
+                    <div class="elig-item" id="check-radius"><div class="elig-icon" id="icon-radius">⏳</div><div class="elig-text">Inside Attendance Radius<div class="elig-detail" id="detail-radius">Waiting…</div></div></div>
+                    <div class="elig-item" id="check-time"><div class="elig-icon" id="icon-time">⏳</div><div class="elig-text">Active Time Slot<div class="elig-detail" id="detail-time">Waiting…</div></div></div>
+                    <div class="elig-item" id="check-account"><div class="elig-icon" id="icon-account">⏳</div><div class="elig-text">Account Active<div class="elig-detail" id="detail-account">Waiting…</div></div></div>
+                    <div class="elig-item" id="check-duplicate"><div class="elig-icon" id="icon-duplicate">⏳</div><div class="elig-text">Not Already Marked<div class="elig-detail" id="detail-duplicate">Waiting…</div></div></div>
+                </div>
+            </div>
+
+            <div class="location-card glass" id="location-card">
+                <h4>Location</h4>
+                <div class="location-grid">
+                    <div><small class="muted">Current Lat</small><div class="mono" id="current-lat">--</div></div>
+                    <div><small class="muted">Current Lon</small><div class="mono" id="current-lon">--</div></div>
+                    <div><small class="muted">Distance</small><div class="big" id="distance-display">--</div></div>
+                    <div><small class="muted">Allowed</small><div class="big">{{ active_location['allowed_radius'] if active_location else 30 }} m</div></div>
+                </div>
+                <div class="distance-ring">
+                    <svg viewBox="0 0 36 36" class="progress-ring"><path id="progress" d=""/></svg>
+                    <div class="distance-badge" id="distance-badge">--</div>
+                </div>
+                <div id="distance-message" class="muted">Click "Start Verification" to check your location</div>
+            </div>
+
+            <div class="timeslot-card glass" id="timeslot-card">
+                <h4>Time Slot</h4>
+                <div class="times-grid">
+                    <div><small class="muted">Current Time</small><div class="mono" id="current-time">--:--:--</div></div>
+                    <div><small class="muted">Current Date</small><div class="mono" id="current-date">--</div></div>
+                </div>
+                <div class="slot-info">
+                    <div class="slot-name">{{ configured_slot['slot_name'] if configured_slot else 'No active slot' }}</div>
+                    <div class="slot-window" id="slot-window">{{ configured_slot['start_time'] if configured_slot else '' }}{{ ' – ' + configured_slot['end_time'] if configured_slot else '' }}</div>
+                    <div id="slot-status" class="slot-badge">--</div>
+                </div>
+                <div id="slot-message" class="muted">Click "Start Verification" to check time slot</div>
+            </div>
+
+            <div class="face-card glass" id="face-card">
+                <h4>Face Verification</h4>
+                <!-- face-grid moved below live preview so details update with the preview -->
+                <div style="margin-top:0.75rem;">
+                    <video id="att-video" autoplay muted playsinline style="width:100%;border-radius:8px;display:none;background:#000;"></video>
+                    <canvas id="att-canvas" width="640" height="480" style="display:none;"></canvas>
+                    <div style="margin-top:0.5rem;display:flex;gap:0.5rem;">
+                        <button id="capture-btn" class="button primary" style="display:none;" onclick="capturePreview()">Capture Photo</button>
+                        <button id="confirm-verify-btn" class="button primary" style="display:none;" onclick="verifyCapturedImage()">Confirm & Verify</button>
+                        <button id="stop-verify-btn" class="button secondary" style="display:none;" onclick="stopVerificationCamera()">Stop Preview</button>
+                    </div>
+                </div>
+                <div style="margin-top:0.75rem;display:flex;gap:0.5rem;align-items:center;">
+                    <div style="flex:1;text-align:center;">
+                        <small class="muted">Live Snapshot</small>
+                        <img id="live-snapshot" src="" alt="Live snapshot" style="width:100%;height:auto;border-radius:6px;background:#111;" />
+                    </div>
+                    <div style="width:1px;background:#e6edf3;height:80px;">&nbsp;</div>
+                    <div style="flex:1;text-align:center;">
+                        <small class="muted">Registered Photo</small>
+                        <img id="dataset-sample" src="{{ url_for('static', filename='images/attendance-illustration.svg') }}" alt="Registered" style="width:100%;height:auto;border-radius:6px;object-fit:cover;" />
+                    </div>
+                </div>
+                <div style="margin-top:0.6rem;display:flex;flex-direction:column;gap:0.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <div class="elig-icon" id="icon-face">⏳</div>
+                        <div class="elig-text">Face Verification<div class="elig-detail" id="detail-face">Waiting…</div></div>
+                    </div>
+                    <div class="face-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;">
+                        <div><small class="muted">Camera Status</small><div id="camera-status" class="mono">--</div></div>
+                        <div><small class="muted">Permission</small><div id="camera-permission" class="mono">--</div></div>
+                        <div><small class="muted">Face Detection</small><div id="face-detection-status" class="mono">--</div></div>
+                        <div><small class="muted">Verification</small><div id="face-verification-status" class="mono">--</div></div>
+                    </div>
+                </div>
+                <div id="face-message" class="muted">Click "Start Verification" to begin face detection</div>
+            </div>
+        </section>
+
+        <div id="status" class="status-area"></div>
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mark_attendance.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+<script>
+    // Remove loader after page ready
+    document.getElementById('page-loader').classList.remove('active');
+
+    // Patch startVerification to show toast notifications and disable button during run
+    const _origStart = window.startVerification;
+    window.startVerification = async function() {
+        const btn = document.getElementById('start-btn');
+        const btnText = document.getElementById('start-btn-text');
+        btn.disabled = true;
+        btnText.innerHTML = '<span style="display:inline-flex;align-items:center;gap:0.4rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation:spin 0.7s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg> Verifying…</span>';
+
+        // Override final redirect to add face mismatch check via API
+        const _origHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+
+        try {
+            await _origStart();
+        } catch(e) {
+            showToast('error', 'Verification Error', e.message || 'An error occurred during verification.');
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'Start Verification';
+        }
+    };
+
+    // Intercept redirect to /start-attendance to post face-ID verification
+    // Since current flow uses window.location.href redirect, we patch it here
+    const _origStartAttendance = window.startVerification;
+
+    // Patch the checkTimeSlot final redirect to go through face verify API
+    const _realCheckTime = window.checkTimeSlot;
+    if (typeof _realCheckTime === 'function') {
+        window.checkTimeSlot = async function(distance) {
+            // Run original
+            const origHref = window.location.href;
+            // Patch location redirect by watching for navigation
+            await _realCheckTime(distance);
+        };
+    }
+
+    // Face verification notification helpers
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!window.active_location) {
+            showToast('warning', 'Location Not Configured', 'An attendance location has not been configured by the admin.');
+        }
+    });
+
+    // Patch updateStep to show toast notifications on key events
+    const _origUpdateStep = window.updateStep;
+    window.updateStep = function(stepId, status, message) {
+        _origUpdateStep(stepId, status, message);
+        if (status === 'error') {
+            const toastMap = {
+                'step-camera':   ['error',   'Camera Failed',          message],
+                'step-gps':      ['warning', 'Location Failed',        message],
+                'step-time':     ['warning', 'Attendance Slot Closed', message],
+                'step-duplicate':['error',   'Verification Failed',    message],
+            };
+            if (toastMap[stepId]) {
+                showToast(...toastMap[stepId]);
+            }
+        }
+        if (stepId === 'step-duplicate' && status === 'success') {
+            showToast('info', 'All Checks Passed', 'Redirecting to mark your attendance…');
+        }
+    };
+
+    // Theme toggle (dark / light)
+    (function(){
+        const btn = document.getElementById('theme-toggle');
+        function apply(mode){
+            if(mode === 'dark') document.documentElement.classList.add('dark-mode');
+            else document.documentElement.classList.remove('dark-mode');
+            if(btn) btn.textContent = mode === 'dark' ? '☀️' : '🌙';
+        }
+        const stored = localStorage.getItem('theme') || 'light';
+        apply(stored);
+        if(btn) btn.addEventListener('click', ()=>{
+            const cur = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+            const next = cur === 'dark' ? 'light' : 'dark';
+            apply(next);
+            localStorage.setItem('theme', next);
+        });
+    })();
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</body>
+</html>

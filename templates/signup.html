@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .capture-panel {
+            background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(20,184,166,0.06));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+        }
+        .capture-panel video {
+            border-radius: var(--radius);
+            width: 100%;
+            height: auto;
+            background: #0f172a;
+            border: 2px solid var(--border);
+        }
+        .capture-panel img#preview {
+            border-radius: var(--radius);
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--success);
+        }
+        .capture-or {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .capture-or::before,
+        .capture-or::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <nav class="navbar" style="background:rgba(255,255,255,0.85)">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                    <circle cx="16" cy="14" r="2" fill="white"/>
+                    <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Smart Attendance</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/login" class="nav-link">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="auth-wrap" style="min-height:calc(100vh - 64px)">
+        <div class="auth-card wide">
+            <div class="auth-heading">
+                <h1>Create your account</h1>
+                <p>Register once to start marking attendance with face recognition</p>
+            </div>
+
+            {% if error %}
+            <div class="alert error" style="margin-bottom:1.25rem">
+                <span class="alert-icon">❌</span>
+                <div class="alert-body"><h4>Registration Failed</h4><p>{{ error }}</p></div>
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+
+                <div class="form-section-title" style="margin-top:0">
+                    <span class="section-num">1</span> Personal Details
+                </div>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input id="name" type="text" name="name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="roll_number">Roll Number (6 digits)</label>
+                    <input id="roll_number" type="text" name="roll_number" placeholder="Enter 6-digit roll number" required pattern="\d{6}" maxlength="6">
+                    <small class="text-muted">Must be exactly 6 digits</small>
+                </div>
+                <div class="form-group">
+                    <label for="aadhaar">Aadhaar Number (12 digits)</label>
+                    <input id="aadhaar" type="text" name="aadhaar" placeholder="Enter 12-digit Aadhaar number" required pattern="\d{12}" maxlength="12">
+                    <small class="text-muted">Must be exactly 12 digits</small>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="section-num">2</span> Account Security
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input id="email" type="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input id="password" type="password" name="password" placeholder="Create a password" required>
+                        <small class="text-muted">Must contain uppercase, lowercase, number, and special character</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="section-num">3</span> Face Registration
+                    </div>
+                    <p class="text-muted" style="margin-top:-0.25rem; margin-bottom:0.75rem;">
+                        Add <strong>3–5 photos</strong> (slightly different angle/lighting each time) for more
+                        reliable, stable face recognition.
+                    </p>
+                    <div class="form-group">
+                        <label for="face_image">Upload Face Images (you can select multiple)</label>
+                        <input id="face_image" type="file" name="face_image" accept="image/*" multiple>
+                    </div>
+
+                    <div class="capture-or">or capture live</div>
+
+                    <div class="capture-panel">
+                        <label style="margin-bottom:0.75rem">Capture Live Photos (aim for 3–5)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <video id="video" autoplay muted playsinline></video>
+                            </div>
+                            <div>
+                                <button type="button" class="button secondary" onclick="startCamera()" style="width: 100%; margin-bottom: 0.5rem;">📷 Start Camera</button>
+                                <button type="button" class="button primary" onclick="capturePhoto()" style="width: 100%; margin-bottom: 0.5rem;">✅ Capture Photo</button>
+                                <canvas id="canvas" width="300" height="220" style="display:none;"></canvas>
+                            </div>
+                        </div>
+                        <div id="preview-grid" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;"></div>
+                        <small class="text-muted" id="capture-count">0 photo(s) captured</small>
+                    </div>
+                </div>
+
+                <input type="hidden" name="captured_images" id="captured_images">
+                <button type="submit" class="button primary large" style="width: 100%; margin-top: 0.5rem;">Register</button>
+            </form>
+            <p class="auth-footer">
+                Already have an account? <a href="/login">Login here</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        let video = document.getElementById("video");
+        let canvas = document.getElementById("canvas");
+        let previewGrid = document.getElementById("preview-grid");
+        let captureCountLabel = document.getElementById("capture-count");
+        let capturedImagesField = document.getElementById("captured_images");
+        let faceImageInput = document.getElementById("face_image");
+        let stream = null;
+        let capturedPhotos = []; // array of data URLs (used for previews)
+
+        // Files the user picked via the native file picker (input type=file).
+        // Kept separately so re-syncing captured photos into the input
+        // doesn't wipe out whatever the user selected manually.
+        let userPickedFiles = [];
+
+        // DataTransfer lets us build a real FileList and assign it to
+        // <input type="file">.files — supported in all modern browsers
+        // (Chrome, Firefox, Edge, Safari 14.1+). We feature-detect and
+        // fall back to the old base64-JSON-in-hidden-field approach for
+        // any browser that doesn't support it.
+        const supportsDataTransfer = (() => {
+            try { return !!new DataTransfer(); } catch (e) { return false; }
+        })();
+
+        if (faceImageInput) {
+            faceImageInput.addEventListener("change", function () {
+                userPickedFiles = Array.from(faceImageInput.files || []);
+            });
+        }
+
+        function dataURLtoFile(dataUrl, filename) {
+            const [header, base64] = dataUrl.split(",");
+            const mimeMatch = header.match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : "image/png";
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new File([bytes], filename, { type: mime });
+        }
+
+        // Rebuild the face_image input's FileList as: user-picked files +
+        // captured photos converted to real File objects. This makes captured
+        // photos travel as normal multipart file parts instead of base64 text,
+        // so they're no longer subject to the form-field text-size limit at all.
+        function syncCapturedFilesToInput() {
+            if (!supportsDataTransfer || !faceImageInput) return false;
+            const dt = new DataTransfer();
+            userPickedFiles.forEach(f => dt.items.add(f));
+            capturedPhotos.forEach((dataUrl, idx) => {
+                dt.items.add(dataURLtoFile(dataUrl, `captured_${idx + 1}.jpg`));
+            });
+            faceImageInput.files = dt.files;
+            return true;
+        }
+
+        function validateForm() {
+            const rollNumber = document.getElementById("roll_number").value;
+            const aadhaar = document.getElementById("aadhaar").value;
+            const password = document.getElementById("password").value;
+            const faceImages = document.getElementById("face_image").files;
+
+            // Validate roll number (6 digits)
+            if (!/^\d{6}$/.test(rollNumber)) {
+                alert("Roll number must be exactly 6 digits");
+                return false;
+            }
+
+            // Validate aadhaar (12 digits)
+            if (!/^\d{12}$/.test(aadhaar)) {
+                alert("Aadhaar number must be exactly 12 digits");
+                return false;
+            }
+
+            // Validate password complexity
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                alert("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character");
+                return false;
+            }
+
+            // Validate face photos (either uploaded or captured) - at least one required
+            if (faceImages.length === 0 && capturedPhotos.length === 0) {
+                alert("Please upload or capture at least one face photo");
+                return false;
+            }
+
+            // Modern path: captured photos already live inside face_image's
+            // FileList (kept in sync by syncCapturedFilesToInput), so nothing
+            // else to do. Old-browser fallback: still send base64 JSON so
+            // captures aren't silently dropped.
+            if (!supportsDataTransfer) {
+                capturedImagesField.value = JSON.stringify(capturedPhotos);
+            } else {
+                capturedImagesField.value = "";
+            }
+            return true;
+        }
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (mediaStream) {
+                    stream = mediaStream;
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                })
+                .catch(function () {
+                    alert("Unable to access camera. Please check permissions.");
+                });
+        }
+
+        function capturePhoto() {
+            if (!stream) {
+                alert("Please start camera first");
+                return;
+            }
+            let context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, 300, 220);
+            let imageData = canvas.toDataURL("image/png");
+
+            capturedPhotos.push(imageData);
+            syncCapturedFilesToInput();
+            renderPreviews();
+        }
+
+        function removePhoto(index) {
+            capturedPhotos.splice(index, 1);
+            syncCapturedFilesToInput();
+            renderPreviews();
+        }
+
+        function renderPreviews() {
+            previewGrid.innerHTML = "";
+            capturedPhotos.forEach(function (dataUrl, index) {
+                let wrapper = document.createElement("div");
+                wrapper.style.position = "relative";
+
+                let img = document.createElement("img");
+                img.src = dataUrl;
+                img.style.width = "80px";
+                img.style.height = "80px";
+                img.style.objectFit = "cover";
+                img.style.borderRadius = "8px";
+                img.style.border = "2px solid var(--success)";
+
+                let removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.textContent = "×";
+                removeBtn.title = "Remove this photo";
+                removeBtn.style.position = "absolute";
+                removeBtn.style.top = "-6px";
+                removeBtn.style.right = "-6px";
+                removeBtn.style.width = "20px";
+                removeBtn.style.height = "20px";
+                removeBtn.style.borderRadius = "50%";
+                removeBtn.style.border = "none";
+                removeBtn.style.background = "#ef4444";
+                removeBtn.style.color = "#fff";
+                removeBtn.style.cursor = "pointer";
+                removeBtn.style.lineHeight = "1";
+                removeBtn.onclick = function () { removePhoto(index); };
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                previewGrid.appendChild(wrapper);
+            });
+
+            captureCountLabel.textContent = capturedPhotos.length + " photo(s) captured"
+                + (capturedPhotos.length > 0 && capturedPhotos.length < 3 ? " — try to add at least 3" : "");
+        }
+    </script>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

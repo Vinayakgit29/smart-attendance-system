@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System - AI-Powered Campus Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                    <circle cx="16" cy="14" r="2" fill="white"/>
+                    <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Smart Attendance</span>
+            </div>
+            <div class="nav-links">
+                <a href="#about" class="nav-link">About</a>
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/admin-login" class="nav-link">Admin</a>
+                <a href="/signup" class="btn primary">Sign Up</a>
+                <button data-theme-toggle class="btn ghost" style="margin-left:8px;">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    AI-Powered Attendance
+                </div>
+                <h1 class="hero-title">Smart Campus Attendance <span class="gradient-text">Made Effortless</span></h1>
+                <p class="hero-subtitle">Bring secure face verification, GPS-based check-ins, and real-time attendance insights together in one polished experience for students and administrators.</p>
+                <div class="hero-actions">
+                    <a href="/signup" class="btn primary large">Create Account</a>
+                    <a href="/login" class="btn ghost large">Student Login</a>
+                </div>
+                <div class="hero-points">
+                    <span>✓ Face Recognition</span>
+                    <span>✓ Live GPS Check-In</span>
+                    <span>✓ Instant Insights</span>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <img class="hero-illustration" src="{{ url_for('static', filename='images/hero-attendance-illustration.png') }}" alt="Student verifying attendance with QR code check-in">
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-strip">
+            <div class="stats-grid">
+                <div class="stat-pill c-indigo">
+                    <span class="stat-num">2-in-1</span>
+                    <span class="stat-label">Face ID + GPS Verification</span>
+                </div>
+                <div class="stat-pill c-pink">
+                    <span class="stat-num">&lt; 5 sec</span>
+                    <span class="stat-label">Average Check-in Time</span>
+                </div>
+                <div class="stat-pill c-teal">
+                    <span class="stat-num">Zero</span>
+                    <span class="stat-label">Proxy / Buddy Punching</span>
+                </div>
+                <div class="stat-pill c-amber">
+                    <span class="stat-num">24×7</span>
+                    <span class="stat-label">Real-Time Dashboard Access</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="showcase-section">
+            <div class="section-header text-center">
+                <h2 class="section-title">See It In Action</h2>
+                <p class="section-subtitle">A look at the screens students and admins use every day</p>
+            </div>
+            <div class="showcase-grid">
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-face-bg)"/>
+                        <rect x="90" y="25" width="100" height="120" rx="12" fill="none" stroke="white" stroke-width="2" stroke-dasharray="5 5" opacity="0.6"/>
+                        <circle cx="140" cy="75" r="26" fill="white" opacity="0.95"/>
+                        <path d="M108 140C108 115 121 102 140 102C159 102 172 115 172 140" fill="white" opacity="0.95"/>
+                        <line x1="90" y1="85" x2="190" y2="85" stroke="#2dd4bf" stroke-width="3">
+                            <animate attributeName="y1" values="30;140;30" dur="2.5s" repeatCount="indefinite"/>
+                            <animate attributeName="y2" values="30;140;30" dur="2.5s" repeatCount="indefinite"/>
+                        </line>
+                        <defs>
+                            <linearGradient id="sc-face-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#6366f1"/><stop offset="1" stop-color="#4338ca"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Face Check-In</h4>
+                        <p>Live camera capture matched instantly against the student's registered face.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-gps-bg)"/>
+                        <path d="M0 120 L60 100 L120 130 L180 90 L240 115 L280 95 L280 170 L0 170 Z" fill="rgba(255,255,255,0.08)"/>
+                        <circle cx="140" cy="80" r="45" fill="rgba(255,255,255,0.12)"/>
+                        <circle cx="140" cy="80" r="45" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M140 55C130 55 122 63 122 73C122 87 140 105 140 105C140 105 158 87 158 73C158 63 150 55 140 55Z" fill="#ec4899"/>
+                        <circle cx="140" cy="72" r="7" fill="white"/>
+                        <defs>
+                            <linearGradient id="sc-gps-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#f472b6"/><stop offset="1" stop-color="#be185d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Campus GPS Verification</h4>
+                        <p>Check-ins are only accepted from inside the college's geofenced boundary.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-time-bg)"/>
+                        <circle cx="90" cy="85" r="42" fill="none" stroke="white" stroke-width="4" opacity="0.9"/>
+                        <line x1="90" y1="85" x2="90" y2="55" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="90" y1="85" x2="112" y2="90" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="90" cy="85" r="4" fill="white"/>
+                        <rect x="160" y="40" width="100" height="24" rx="12" fill="rgba(255,255,255,0.85)"/>
+                        <rect x="160" y="73" width="100" height="24" rx="12" fill="rgba(255,255,255,0.55)"/>
+                        <rect x="160" y="106" width="100" height="24" rx="12" fill="rgba(255,255,255,0.3)"/>
+                        <defs>
+                            <linearGradient id="sc-time-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#14b8a6"/><stop offset="1" stop-color="#0f766e"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Flexible Time Slots</h4>
+                        <p>Morning, afternoon, and evening windows so attendance fits every schedule.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-dash-bg)"/>
+                        <circle cx="70" cy="85" r="40" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="12"/>
+                        <circle cx="70" cy="85" r="40" fill="none" stroke="white" stroke-width="12" stroke-dasharray="188" stroke-dashoffset="40" stroke-linecap="round" transform="rotate(-90 70 85)"/>
+                        <text x="70" y="91" fill="white" font-size="18" font-weight="700" text-anchor="middle">92%</text>
+                        <rect x="150" y="110" width="16" height="35" rx="3" fill="rgba(255,255,255,0.6)"/>
+                        <rect x="175" y="90" width="16" height="55" rx="3" fill="rgba(255,255,255,0.8)"/>
+                        <rect x="200" y="60" width="16" height="85" rx="3" fill="white"/>
+                        <rect x="225" y="100" width="16" height="45" rx="3" fill="rgba(255,255,255,0.7)"/>
+                        <defs>
+                            <linearGradient id="sc-dash-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#818cf8"/><stop offset="1" stop-color="#6366f1"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Student Dashboard</h4>
+                        <p>Every student can see their own attendance percentage and history at a glance.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-admin-bg)"/>
+                        <polyline points="20,120 70,90 120,105 170,55 220,75 260,40" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="70" cy="90" r="4" fill="white"/>
+                        <circle cx="170" cy="55" r="4" fill="white"/>
+                        <circle cx="260" cy="40" r="4" fill="white"/>
+                        <rect x="20" y="135" width="240" height="10" rx="5" fill="rgba(255,255,255,0.25)"/>
+                        <rect x="20" y="135" width="150" height="10" rx="5" fill="white"/>
+                        <defs>
+                            <linearGradient id="sc-admin-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#f59e0b"/><stop offset="1" stop-color="#b45309"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Admin Analytics</h4>
+                        <p>Institution-wide attendance trends, updated in real time as students check in.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card">
+                    <div class="showcase-frame"><span></span><span></span><span></span></div>
+                    <svg class="showcase-image" viewBox="0 0 280 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="280" height="170" fill="url(#sc-secure-bg)"/>
+                        <path d="M140 30L185 45V80C185 108 165 130 140 140C115 130 95 108 95 80V45L140 30Z" fill="rgba(255,255,255,0.18)" stroke="white" stroke-width="2"/>
+                        <rect x="122" y="78" width="36" height="28" rx="4" fill="white"/>
+                        <path d="M129 78V68C129 61 134 56 140 56C146 56 151 61 151 68V78" stroke="white" stroke-width="4" fill="none"/>
+                        <circle cx="140" cy="92" r="4" fill="#4338ca"/>
+                        <defs>
+                            <linearGradient id="sc-secure-bg" x1="0" y1="0" x2="280" y2="170" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#334155"/><stop offset="1" stop-color="#0f172a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="showcase-caption">
+                        <h4>Secure Records</h4>
+                        <p>Attendance history is tamper-resistant and only accessible to the right people.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="about-section" id="about">
+            <div class="about-grid">
+                <div class="about-content">
+                    <span class="about-badge">About the platform</span>
+                    <h2>Attendance you can trust, in seconds</h2>
+                    <p>
+                        No paper registers, no roll calls, no proxy sign-ins. Every check-in is confirmed
+                        with the student's own face and real campus location — instant for students,
+                        transparent for admins.
+                    </p>
+                    <ul class="about-highlights">
+                        <li>
+                            <span class="tick">✓</span>
+                            <div><strong>For students</strong> — <span>register once, then check in within seconds using your face and campus location.</span></div>
+                        </li>
+                        <li>
+                            <span class="tick">✓</span>
+                            <div><strong>For institutions</strong> — <span>get a tamper-resistant record and a live dashboard instead of paper registers.</span></div>
+                        </li>
+                        <li>
+                            <span class="tick">✓</span>
+                            <div><strong>Privacy-conscious by design</strong> — <span>face data is used only to verify identity at check-in, nothing more.</span></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="about-visual">
+                    <svg class="about-illustration" viewBox="0 0 380 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="30" width="360" height="270" rx="18" fill="url(#about-bg)"/>
+                        <!-- campus building -->
+                        <rect x="40" y="130" width="120" height="140" rx="6" fill="rgba(255,255,255,0.14)"/>
+                        <path d="M40 130L100 95L160 130" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <rect x="60" y="160" width="20" height="24" rx="3" fill="rgba(255,255,255,0.35)"/>
+                        <rect x="90" y="160" width="20" height="24" rx="3" fill="rgba(255,255,255,0.35)"/>
+                        <rect x="120" y="160" width="20" height="24" rx="3" fill="rgba(255,255,255,0.35)"/>
+                        <rect x="60" y="196" width="20" height="24" rx="3" fill="rgba(255,255,255,0.35)"/>
+                        <rect x="90" y="196" width="20" height="24" rx="3" fill="rgba(255,255,255,0.35)"/>
+                        <rect x="85" y="234" width="30" height="36" rx="3" fill="rgba(255,255,255,0.5)"/>
+                        <!-- student figure with face-scan -->
+                        <circle cx="255" cy="150" r="60" fill="rgba(255,255,255,0.12)"/>
+                        <circle cx="255" cy="128" r="22" fill="white"/>
+                        <path d="M215 210C215 185 232 172 255 172C278 172 295 185 295 210" fill="white"/>
+                        <circle cx="255" cy="150" r="42" stroke="url(#about-scan)" stroke-width="3" stroke-dasharray="6 6"/>
+                        <!-- gps pin -->
+                        <path d="M300 220C300 205 289 195 277 195C265 195 254 205 254 220C254 235 277 255 277 255C277 255 300 235 300 220Z" fill="url(#about-pin)"/>
+                        <circle cx="277" cy="219" r="8" fill="white"/>
+                        <!-- check badge -->
+                        <circle cx="120" cy="110" r="18" fill="url(#about-check)"/>
+                        <path d="M112 110L118 116L130 103" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="about-bg" x1="10" y1="30" x2="370" y2="300" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#14b8a6"/>
+                            </linearGradient>
+                            <linearGradient id="about-scan" x1="213" y1="108" x2="297" y2="192" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#ffffff"/>
+                                <stop offset="1" stop-color="#ffffff" stop-opacity="0.4"/>
+                            </linearGradient>
+                            <linearGradient id="about-pin" x1="254" y1="195" x2="300" y2="255" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#ec4899"/>
+                                <stop offset="1" stop-color="#f472b6"/>
+                            </linearGradient>
+                            <linearGradient id="about-check" x1="102" y1="92" x2="138" y2="128" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#22c55e"/>
+                                <stop offset="1" stop-color="#16a34a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="section-header text-center">
+                <h2 class="section-title">Key Features</h2>
+                <p class="section-subtitle">Everything you need for modern attendance management</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-indigo">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/>
+                            <path d="M8 14v1a4 4 0 0 0 8 0v-1"/>
+                            <path d="M12 19v3"/>
+                            <path d="M9 22h6"/>
+                            <circle cx="9.5" cy="8" r="0.6" fill="currentColor" stroke="none"/>
+                            <circle cx="14.5" cy="8" r="0.6" fill="currentColor" stroke="none"/>
+                        </svg>
+                    </div>
+                    <h3>Face Recognition</h3>
+                    <p>AI-powered identity verification with live camera capture</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-pink">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <h3>GPS Verification</h3>
+                    <p>Geo-fenced attendance within campus boundaries</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-teal">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <h3>Time Slots</h3>
+                    <p>Flexible morning, afternoon, and evening windows</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-amber">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M3 9h18"/>
+                            <path d="M9 21V9"/>
+                        </svg>
+                    </div>
+                    <h3>Admin Dashboard</h3>
+                    <p>Real-time analytics and student management</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="cta-content">
+                <h2>Ready to Join Us?</h2>
+                <p>Join thousands of students using smart attendance today</p>
+                <div class="cta-actions">
+                    <a href="/signup" class="button primary large">Sign Up Now</a>
+                    <a href="/login" class="button secondary large">Login</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-about">
+                <div class="footer-brand">
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="8" fill="url(#footer-logo-gradient)"/>
+                        <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                        <circle cx="16" cy="14" r="2" fill="white"/>
+                        <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="footer-logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#ec4899"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>Smart Attendance</span>
+                </div>
+                <p class="footer-tagline">A digital attendance platform using face recognition and GPS verification to give students a faster check-in and institutions an accurate, tamper-resistant record.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#about">About Us</a>
+                <a href="/signup">Sign Up</a>
+                <a href="/login">Student Login</a>
+                <a href="/admin-login">Admin Login</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Smart Attendance System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</body>
+</html>

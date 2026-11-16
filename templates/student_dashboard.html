@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .dash-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            color: #fff; padding: 2.5rem 0 4rem; margin-bottom: -2.5rem;
+        }
+        .dash-header h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.3rem; }
+        .dash-header p  { margin: 0; opacity: 0.8; font-size: 0.95rem; }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        @media (max-width: 640px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr; }
+        }
+        .stat-card-white { background: #fff; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+        .stat-lbl { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 0.4rem; }
+        .stat-val { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+    </style>
+</head>
+<body>
+<div id="toast-container"></div>
+<div class="loading-overlay" id="page-loader"><div class="spinner"></div><div class="loading-text">Loading…</div></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="url(#ng)"/>
+                <path d="M16 8C11.58 8 8 11.58 8 16C8 20.42 11.58 24 16 24C20.42 24 24 20.42 24 16C24 11.58 20.42 8 16 8ZM16 10C19.31 10 22 12.69 22 16C22 19.31 19.31 22 16 22C12.69 22 10 19.31 10 16C10 12.69 12.69 10 16 10Z" fill="white"/>
+                <circle cx="16" cy="14" r="2" fill="white"/>
+                <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <defs><linearGradient id="ng" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+            </svg>
+            <span>Smart Attendance</span>
+        </div>
+        <div class="nav-links">
+            <a href="/mark-attendance" class="nav-link">Mark Attendance</a>
+            <a href="/student-logout" class="button secondary" style="padding:0.45rem 1rem;font-size:0.875rem">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="dash-header">
+    <div class="container" style="padding-bottom:0">
+        <p class="dash-header" style="background:none;padding:0;margin-bottom:0.35rem;font-size:0.85rem;opacity:0.75">Good day,</p>
+        <h1>{{ student[1] }}</h1>
+        <p>Roll No: {{ student[2] }} &nbsp;·&nbsp; {{ student[4] }}</p>
+    </div>
+</div>
+
+<main class="container">
+    <div class="stats-row">
+        <div class="stat-card-white">
+            <div class="stat-lbl">Roll Number</div>
+            <div class="stat-val">{{ student[2] }}</div>
+        </div>
+        <div class="stat-card-white">
+            <div class="stat-lbl">Today's Status</div>
+            <div class="stat-val">
+                {% if attendance_status == 'Present' %}
+                    <span class="status-badge present">✅ Present</span>
+                {% else %}
+                    <span class="status-badge absent">— Not Marked</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="stat-card-white">
+            <div class="stat-lbl">Account Status</div>
+            <div class="stat-val"><span class="status-badge present">Active</span></div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <div class="action-card">
+            <div class="action-card-icon">📍</div>
+            <h3 style="margin:0 0 0.5rem;font-size:1.05rem">Mark Attendance</h3>
+            <p style="margin:0 0 1.25rem;color:var(--text-secondary);font-size:0.875rem">Use face recognition & GPS to mark yourself present</p>
+            <a href="/mark-attendance" class="button primary" style="width:100%">Start Verification</a>
+        </div>
+        <div class="action-card">
+            <div class="action-card-icon">📋</div>
+            <h3 style="margin:0 0 0.5rem;font-size:1.05rem">Attendance History</h3>
+            <p style="margin:0 0 1.25rem;color:var(--text-secondary);font-size:0.875rem">Review your complete attendance record and percentage</p>
+            <a href="/student-attendance/{{ student[2] }}" class="button secondary" style="width:100%">View History</a>
+        </div>
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script>
+    document.getElementById('page-loader').classList.remove('active');
+    {% if attendance_status == 'Present' %}
+    setTimeout(() => showToast('success','Already Present','Your attendance for today is already marked.'), 500);
+    {% endif %}
+</script>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

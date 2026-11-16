@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                    <circle cx="16" cy="14" r="2" fill="white"/>
+                    <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Smart Attendance</span>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">Dashboard</a>
+                <a href="/admin/students" class="nav-link">Students</a>
+                <a href="/admin/admins" class="nav-link">Admins</a>
+                <a href="/admin/attendance-records" class="nav-link">Attendance</a>
+                <a href="/admin/locations" class="nav-link">Locations</a>
+                <a href="/admin/slots" class="nav-link">Slots</a>
+                <a href="/admin-logout" class="button secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="section-header">
+            <div>
+                <h1 class="section-title">Admin Dashboard</h1>
+                <p class="section-subtitle">Manage students, attendance, and system settings</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="label">Total Students</div>
+                <div class="value">{{ total_students }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="label">Active Students</div>
+                <div class="value">{{ active_students }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="label">Total Attendance</div>
+                <div class="value">{{ total_attendance }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div class="label">Today Present</div>
+                <div class="value">{{ today_attendance }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Current Session</h2>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <p class="text-muted" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Active Slot</p>
+                    {% if active_slot %}
+                    <p style="font-size: 1.1rem; font-weight: 600;">{{ active_slot['slot_name'] }}</p>
+                    <p class="text-muted">{{ active_slot['start_time'] }} - {{ active_slot['end_time'] }}</p>
+                    {% else %}
+                    <p class="text-muted">No active slot</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="text-muted" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Location</p>
+                    {% if active_location %}
+                    <p style="font-size: 1.1rem; font-weight: 600;">{{ active_location['name'] }}</p>
+                    <p class="text-muted">Radius: {{ active_location['allowed_radius'] }}m</p>
+                    {% else %}
+                    <p class="text-muted">No location set</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 2rem;">
+            <a href="/admin/students" class="card" style="text-align: center; text-decoration: none; transition: var(--transition);">
+                <div class="icon" style="margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Manage Students</h3>
+                <p class="text-muted" style="margin: 0;">Add, edit, or remove students</p>
+            </a>
+            <a href="/admin/admins" class="card" style="text-align: center; text-decoration: none; transition: var(--transition);">
+                <div class="icon" style="margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Manage Admins</h3>
+                <p class="text-muted" style="margin: 0;">Create and manage admin accounts</p>
+            </a>
+            <a href="/admin/attendance-records" class="card" style="text-align: center; text-decoration: none; transition: var(--transition);">
+                <div class="icon" style="margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Attendance Records</h3>
+                <p class="text-muted" style="margin: 0;">View all attendance history</p>
+            </a>
+            <a href="/admin/locations" class="card" style="text-align: center; text-decoration: none; transition: var(--transition);">
+                <div class="icon" style="margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Locations</h3>
+                <p class="text-muted" style="margin: 0;">Configure campus locations</p>
+            </a>
+            <a href="/admin/slots" class="card" style="text-align: center; text-decoration: none; transition: var(--transition);">
+                <div class="icon" style="margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Time Slots</h3>
+                <p class="text-muted" style="margin: 0;">Manage attendance slots</p>
+            </a>
+        </div>
+    </main>
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</body>
+</html>

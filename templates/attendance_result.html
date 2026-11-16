@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Attendance Result – Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); min-height: 100vh; }
+        .result-wrap { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+        .result-card {
+            background: #fff; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1); padding: 3rem 2rem;
+            width: 100%; max-width: 500px; text-align: center;
+        }
+        .result-icon { width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.75rem; margin: 0 auto 1.5rem; }
+        .result-icon.ok  { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+        .result-icon.err { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.75rem; }
+        .result-msg { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin: 0 0 2rem; }
+        pre.debug { text-align: left; background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: var(--radius); overflow: auto; font-size: 0.8rem; margin: 1rem 0 2rem; }
+        .result-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="6" fill="url(#g2)"/>
+                <defs><linearGradient id="g2" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+            </svg>
+            <span>Smart Attendance</span>
+        </div>
+        <div class="nav-links">
+            <a href="/student-dashboard" class="nav-link">Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="result-wrap">
+    <div class="result-card">
+        {% if success %}
+            <div class="result-icon ok">✅</div>
+            <h2 style="color:#166534">Attendance Marked!</h2>
+            <p class="result-msg">{{ message }}</p>
+            <div class="alert success" style="text-align:left">
+                <span class="alert-icon">🎉</span>
+                <div class="alert-body">
+                    <h4>Attendance Recorded</h4>
+                    <p>Your check-in is now stored successfully. You can review it on the dashboard and in your attendance history.</p>
+                </div>
+            </div>
+            <div class="card" style="margin-top:1rem; padding:1rem; text-align:left;">
+                <div style="display:grid; gap:0.5rem;">
+                    <div><strong>Recorded on:</strong> {{ message.split(' on ')[1] if ' on ' in message else '' }}</div>
+                    <div><strong>Status:</strong> Present</div>
+                    <div><strong>Next step:</strong> Open your dashboard to view today's attendance summary.</div>
+                </div>
+            </div>
+            <div class="result-actions" style="margin-top:1.5rem">
+                <a class="button primary" href="/student-dashboard">Back to Dashboard</a>
+            </div>
+        {% else %}
+            <div class="result-icon err">❌</div>
+            <h2 style="color:#991b1b">Could Not Mark Attendance</h2>
+            <p class="result-msg">{{ message }}</p>
+            {% if 'Face does not belong' in message %}
+            <div class="alert error" style="text-align:left">
+                <span class="alert-icon">🔐</span>
+                <div class="alert-body">
+                    <h4>Identity Mismatch</h4>
+                    <p>The face captured does not match the logged-in account. Please ensure you are using your own device and face.</p>
+                </div>
+            </div>
+            {% elif 'slot' in message|lower %}
+            <div class="alert warning" style="text-align:left">
+                <span class="alert-icon">⏰</span>
+                <div class="alert-body">
+                    <h4>Outside Attendance Window</h4>
+                    <p>The attendance time slot is currently closed. Please try again during the active slot.</p>
+                </div>
+            </div>
+            {% elif 'already' in message|lower %}
+            <div class="alert info" style="text-align:left">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-body">
+                    <h4>Already Marked</h4>
+                    <p>Your attendance for this slot has already been recorded.</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert error" style="text-align:left">
+                <span class="alert-icon">⚠️</span>
+                <div class="alert-body">
+                    <h4>Verification Failed</h4>
+                    <p>Please confirm you are inside the campus area, the time slot is active, and your identity matches the registered account.</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if debug %}
+                <pre class="debug">{{ debug }}</pre>
+            {% endif %}
+            <div class="result-actions">
+                <a class="button secondary" href="/mark-attendance">Try Again</a>
+                <a class="button primary" href="/student-dashboard">Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script>
+    {% if success %}
+    showToast('success', 'Attendance Marked', '{{ message | truncate(80) }}');
+    {% else %}
+    showToast('error', 'Attendance Failed', '{{ message | truncate(80) }}');
+    {% endif %}
+</script>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>

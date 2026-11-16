@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records - Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .date-group-row td {
+            background: var(--bg-tertiary);
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .date-group-row td span.count {
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: normal;
+            color: var(--text-muted);
+        }
+        tr.record-row.is-hidden,
+        tr.date-group-row.is-hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                    <path d="M16 8C11.5817 8 8 11.5817 8 16C8 20.4183 11.5817 24 16 24C20.4183 24 24 20.4183 24 16C24 11.5817 20.4183 8 16 8ZM16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C12.6863 22 10 19.3137 10 16C10 12.6863 12.6863 10 16 10Z" fill="white"/>
+                    <circle cx="16" cy="14" r="2" fill="white"/>
+                    <path d="M12 20C12 18 13.5 17 16 17C18.5 17 20 18 20 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>Smart Attendance</span>
+            </div>
+            <div class="nav-links">
+                <a href="/admin-dashboard" class="nav-link">Dashboard</a>
+                <a href="/admin/students" class="nav-link">Students</a>
+                <a href="/admin/admins" class="nav-link">Admins</a>
+                <a href="/admin/attendance-records" class="nav-link active">Attendance</a>
+                <a href="/admin/locations" class="nav-link">Locations</a>
+                <a href="/admin/slots" class="nav-link">Slots</a>
+                <a href="/admin-logout" class="button secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="section-header">
+            <div>
+                <h1 class="section-title">Attendance Records</h1>
+                <p class="section-subtitle">Every check-in across all students, days, and time slots</p>
+            </div>
+        </div>
+
+        {% set dates = records|map(attribute=3)|unique|list %}
+        {% set slots = records|map(attribute=5)|unique|list %}
+        {% set students_seen = records|map(attribute=2)|unique|list %}
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"/>
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                </div>
+                <div class="label">Total Check-ins</div>
+                <div class="value">{{ records|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="label">Students With Records</div>
+                <div class="value">{{ students_seen|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <path d="M16 2v4"/>
+                        <path d="M8 2v4"/>
+                        <path d="M3 10h18"/>
+                    </svg>
+                </div>
+                <div class="label">Days Covered</div>
+                <div class="value">{{ dates|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div class="label">Slots In Use</div>
+                <div class="value">{{ slots|length }}</div>
+            </div>
+        </div>
+
+        {% if records %}
+        <div class="filter-bar">
+            <div class="filter-field">
+                <label for="filter-date">Date</label>
+                <select id="filter-date">
+                    <option value="">All dates</option>
+                    {% for d in dates|sort(reverse=true) %}
+                    <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="filter-slot">Slot</label>
+                <select id="filter-slot">
+                    <option value="">All slots</option>
+                    {% for s in slots|sort %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field search-field">
+                <label for="filter-search">Search student</label>
+                <div class="search-wrapper">
+                    <input type="text" id="filter-search" placeholder="Search by name or roll number">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="button" class="button secondary" id="filter-reset">Clear Filters</button>
+                <span class="filter-count" id="filter-count"></span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Student</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Slot</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set ns = namespace(current_date=None) %}
+                    {% for record in records|sort(attribute=4, reverse=true)|sort(attribute=3, reverse=true) %}
+                        {% if record[3] != ns.current_date %}
+                            {% set ns.current_date = record[3] %}
+                            {% set day_count = records|selectattr(3, 'equalto', record[3])|list|length %}
+                            <tr class="date-group-row" data-group-date="{{ record[3] }}">
+                                <td colspan="6">📅 {{ record[3] }} <span class="count">— {{ day_count }} check-in{{ 's' if day_count != 1 else '' }}</span></td>
+                            </tr>
+                        {% endif %}
+                        {% set slot_name = (record[5] or 'Unassigned') %}
+                        {% set slot_lower = slot_name|lower %}
+                        {% if 'morning' in slot_lower %}
+                            {% set slot_class = 'slot-morning' %}
+                        {% elif 'afternoon' in slot_lower %}
+                            {% set slot_class = 'slot-afternoon' %}
+                        {% elif 'evening' in slot_lower %}
+                            {% set slot_class = 'slot-evening' %}
+                        {% else %}
+                            {% set slot_class = 'slot-other' %}
+                        {% endif %}
+                        <tr class="record-row"
+                            data-date="{{ record[3] }}"
+                            data-slot="{{ slot_name }}"
+                            data-search="{{ (record[1] ~ ' ' ~ record[2])|lower }}">
+                            <td><strong>{{ record[2] }}</strong></td>
+                            <td>{{ record[1] }}</td>
+                            <td>{{ record[3] }}</td>
+                            <td>{{ record[4] }}</td>
+                            <td><span class="slot-badge {{ slot_class }}">{{ slot_name }}</span></td>
+                            <td><span class="status-pill success">Present</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <path d="M16 2v4"/>
+                <path d="M8 2v4"/>
+                <path d="M3 10h18"/>
+            </svg>
+            <h3>No attendance records yet</h3>
+            <p>Check-ins will show up here as soon as students start marking attendance.</p>
+        </div>
+        {% endif %}
+    </main>
+<script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+<script>
+(function () {
+    var dateSelect = document.getElementById('filter-date');
+    var slotSelect = document.getElementById('filter-slot');
+    var searchInput = document.getElementById('filter-search');
+    var resetBtn = document.getElementById('filter-reset');
+    var countLabel = document.getElementById('filter-count');
+    var rows = Array.prototype.slice.call(document.querySelectorAll('tr.record-row'));
+    var groupRows = Array.prototype.slice.call(document.querySelectorAll('tr.date-group-row'));
+    var totalCount = rows.length;
+
+    if (!dateSelect) return;
+
+    function applyFilters() {
+        var dateVal = dateSelect.value;
+        var slotVal = slotSelect.value;
+        var searchVal = (searchInput.value || '').toLowerCase().trim();
+        var visible = 0;
+
+        rows.forEach(function (row) {
+            var matches = true;
+            if (dateVal && row.getAttribute('data-date') !== dateVal) matches = false;
+            if (slotVal && row.getAttribute('data-slot') !== slotVal) matches = false;
+            if (searchVal && row.getAttribute('data-search').indexOf(searchVal) === -1) matches = false;
+
+            row.classList.toggle('is-hidden', !matches);
+            if (matches) visible++;
+        });
+
+        // A date group header should stay visible only while at least one
+        // record row underneath it is still visible.
+        groupRows.forEach(function (groupRow) {
+            var groupDate = groupRow.getAttribute('data-group-date');
+            var anyVisible = rows.some(function (row) {
+                return row.getAttribute('data-date') === groupDate && !row.classList.contains('is-hidden');
+            });
+            groupRow.classList.toggle('is-hidden', !anyVisible);
+        });
+
+        countLabel.textContent = 'Showing ' + visible + ' of ' + totalCount + ' records';
+    }
+
+    dateSelect.addEventListener('change', applyFilters);
+    slotSelect.addEventListener('change', applyFilters);
+    searchInput.addEventListener('input', applyFilters);
+    resetBtn.addEventListener('click', function () {
+        dateSelect.value = '';
+        slotSelect.value = '';
+        searchInput.value = '';
+        applyFilters();
+    });
+
+    applyFilters();
+})();
+</script>
+</body>
+<script src="{{ url_for('static', filename='js/theme_toggle.js') }}"></script>
+</html>
